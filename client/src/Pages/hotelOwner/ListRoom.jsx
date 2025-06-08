@@ -2,7 +2,9 @@ import React from 'react'
 
 const ListRoom = () => {
   return (
-    <div>ListRoom</div>
+    <div>
+      
+    </div>
   )
 }
 
