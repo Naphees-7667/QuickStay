@@ -58,7 +58,7 @@ const ListRoom = () => {
                   </label>
                 </td>
               </tr>
-            ))}
+            )) }
           </tbody>
         </table>
       </div>
