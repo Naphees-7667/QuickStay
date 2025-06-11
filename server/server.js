@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 // ✅ Webhook route ONLY – with raw body middleware
-app.post("/clerk-webhooks", express.raw({ type: "application/json" }), clerkWebhooks);
+app.post("/api/clerk", express.raw({ type: "application/json" }), clerkWebhooks);
 
 // Test route
 app.get("/", (req, res) => {
