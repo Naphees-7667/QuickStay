@@ -3,6 +3,7 @@ import "dotenv/config";
 import cors from "cors";
 import connectDB from "./configs/db.js";
 import clerkWebhooks from "./controllers/clerkWebhooks.controllers.js";
+import userRouter from "./routes/userRoutes.routes.js";
 
 connectDB();
 const app = express();
@@ -12,12 +13,18 @@ app.use(cors());
 app.use(express.json());
 
 // ✅ Webhook route ONLY – with raw body middleware
-app.post("/api/clerk", express.raw({ type: "application/json" }), clerkWebhooks);
+app.post(
+  "/api/clerk",
+  express.raw({ type: "application/json" }),
+  clerkWebhooks
+);
 
 // Test route
 app.get("/", (req, res) => {
   res.send("Hello from server");
 });
+
+app.use("/api/user", userRouter);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
