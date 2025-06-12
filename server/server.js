@@ -1,9 +1,10 @@
 import express from "express";
 import "dotenv/config";
 import cors from "cors";
-import connectDB from "./configs/db.js";
+import connectDB from "./configs/db.configs.js";
 import clerkWebhooks from "./controllers/clerkWebhooks.controllers.js";
-import userRouter from "./routes/userRoutes.routes.js";
+import userRouter from "./routes/user.routes.js";
+import hotelRouter from "./routes/hotel.routes.js";
 
 connectDB();
 const app = express();
@@ -25,6 +26,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/user", userRouter);
+app.use("/api/hotels", hotelRouter);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
