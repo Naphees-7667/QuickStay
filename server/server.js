@@ -7,6 +7,7 @@ import userRouter from "./routes/user.routes.js";
 import hotelRouter from "./routes/hotel.routes.js";
 import connectCloudinary from "./configs/cloudinary.configs.js";
 import roomRouter from "./routes/room.routes.js";
+import bookingRouter from "./routes/booking.routes.js";
 
 connectDB();
 connectCloudinary();
@@ -32,6 +33,7 @@ app.get("/", (req, res) => {
 app.use("/api/user", userRouter);
 app.use("/api/hotels", hotelRouter);
 app.use("/api/rooms", roomRouter);
+app.use("/api/bookings", bookingRouter);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
