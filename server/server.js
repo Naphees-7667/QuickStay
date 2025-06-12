@@ -5,8 +5,12 @@ import connectDB from "./configs/db.configs.js";
 import clerkWebhooks from "./controllers/clerkWebhooks.controllers.js";
 import userRouter from "./routes/user.routes.js";
 import hotelRouter from "./routes/hotel.routes.js";
+import connectCloudinary from "./configs/cloudinary.configs.js";
+import roomRouter from "./routes/room.routes.js";
 
 connectDB();
+connectCloudinary();
+
 const app = express();
 
 // Normal middlewares
@@ -27,6 +31,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/user", userRouter);
 app.use("/api/hotels", hotelRouter);
+app.use("/api/rooms", roomRouter);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
