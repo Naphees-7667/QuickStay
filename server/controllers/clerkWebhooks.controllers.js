@@ -28,8 +28,6 @@ const clerkWebhooks = async (req, res) => {
     let evt;
 
     // Attempt to verify the incoming webhook
-    // If successful, the payload will be available from 'evt'
-    // If the verification fails, error out and  return a 400
     try {
       evt = wh.verify(payload, {
         "svix-id": svix_id,
@@ -37,7 +35,9 @@ const clerkWebhooks = async (req, res) => {
         "svix-signature": svix_signature,
       });
     } catch (err) {
-      console.log("Error verifying webhook:", err.message);
+      console.error("Error verifying webhook:", err.message);
+      console.error("Headers:", headers);
+      console.error("Payload:", payload);
       return res.status(400).json({ success: false, message: err.message });
     }
 
@@ -45,43 +45,75 @@ const clerkWebhooks = async (req, res) => {
     const { id } = evt.data;
     const eventType = evt.type;
 
-    console.log(`Webhook with an ID of ${id} and type of ${eventType}`);
+    console.log(`Webhook received - ID: ${id}, Type: ${eventType}`);
+    console.log("Event data:", evt.data);
 
-    if (eventType === "user.created") {
-      const { id, email_addresses, first_name, last_name, image_url } = evt.data;
+    // Handle different event types
+    switch(eventType) {
+      case "user.created":
+        try {
+          const { id, email_addresses, first_name, last_name, image_url } = evt.data;
+          
+          const user = {
+            _id: id,
+            email: email_addresses[0].email_address,
+            username: `${first_name} ${last_name}`,
+            image: image_url,
+          };
+          
+          console.log("Creating user:", user);
+          const createdUser = await User.create(user);
+          console.log("User created successfully:", createdUser);
+        } catch (err) {
+          console.error("Error creating user:", err);
+          throw err;
+        }
+        break;
 
-      const user = {
-        _id: id,
-        email: email_addresses[0].email_address,
-        username: `${first_name} ${last_name}`,
-        image: image_url,
-      };
-      console.log(user);
-      await User.create(user);
-    }
+      case "user.updated":
+        try {
+          const { id, email_addresses, first_name, last_name, image_url } = evt.data;
+          
+          const user = {
+            _id: id,
+            email: email_addresses[0].email_address,
+            username: `${first_name} ${last_name}`,
+            image: image_url,
+          };
 
-    if (eventType === "user.updated") {
-      const { id, email_addresses, first_name, last_name, image_url } = evt.data;
+          console.log("Updating user:", user);
+          const updatedUser = await User.findByIdAndUpdate(id, user, { new: true });
+          console.log("User updated successfully:", updatedUser);
+        } catch (err) {
+          console.error("Error updating user:", err);
+          throw err;
+        }
+        break;
 
-      const user = {
-        _id: id,
-        email: email_addresses[0].email_address,
-        username: `${first_name} ${last_name}`,
-        image: image_url,
-      };
+      case "user.deleted":
+        try {
+          console.log("Deleting user with ID:", id);
+          const deletedUser = await User.findByIdAndDelete(id);
+          console.log("User deleted successfully:", deletedUser);
+        } catch (err) {
+          console.error("Error deleting user:", err);
+          throw err;
+        }
+        break;
 
-      await User.findByIdAndUpdate(id, user);
-    }
-
-    if (eventType === "user.deleted") {
-      const { id } = evt.data;
-      await User.findByIdAndDelete(id);
+      default:
+        console.log(`Unhandled event type: ${eventType}`);
+        break;
     }
 
     return res.status(200).json({ success: true, message: "Webhook received" });
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({ success: false, message: error.message });
+    console.error("Webhook error:", error);
+    return res.status(500).json({ 
+      success: false, 
+      message: error.message,
+      error: error.toString()
+    });
   }
 };
 
