@@ -6,8 +6,9 @@ export const getUserData = async(req, res) => {
        const recentSearchedCities = req.user.recentSearchedCities;
        res.json({success: true, role, recentSearchedCities});
 
-    } catch (error) {
-        res.json({success: false, message: error.message});
+    } 
+    catch (error) {
+        res.json({success: false, message:  error.message});
     }
 };
 

@@ -27,6 +27,8 @@ const clerkWebhooks = async (req, res) => {
         image: data.image_url,
     }
 
+    console.log(data);
+
     // switch case for different events 
 
     switch(type){
