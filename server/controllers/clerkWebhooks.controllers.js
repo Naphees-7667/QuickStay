@@ -48,12 +48,101 @@ const clerkWebhooks = async (req, res) => {
       });
     }
 
-    // Get the ID and type
-    const { id } = evt.data;
+    // Get the ID from the data object
+    const eventId = evt.data.id;
     const eventType = evt.type;
 
-    console.log(`Received ${eventType} event for ID: ${id}`);
-    console.log("Event data:", JSON.stringify(evt.data, null, 2));
+    console.log(`Received ${eventType} event for ID: ${eventId}`);
+    console.log("Full event data:", JSON.stringify(evt.data, null, 2));
+
+    // Handle different event types
+    switch(eventType) {
+      case "user.created":
+        try {
+          // Get user data from the event
+          const userData = evt.data;
+          
+          const user = {
+            _id: userData.id,
+            email: userData.email_addresses[0].email_address,
+            username: `${userData.first_name} ${userData.last_name}`,
+            image: userData.image_url,
+          };
+          
+          console.log("Creating user:", user);
+          const createdUser = await User.create(user);
+          console.log("User created successfully:", createdUser);
+          
+          return res.status(200).json({ 
+            success: true, 
+            message: "User created successfully",
+            user: createdUser
+          });
+        } catch (err) {
+          console.error("Error creating user:", err);
+          return res.status(500).json({ 
+            error: "Failed to create user",
+            details: err.message
+          });
+        }
+        break;
+
+      case "user.updated":
+        try {
+          const userData = evt.data;
+          
+          const user = {
+            _id: userData.id,
+            email: userData.email_addresses[0].email_address,
+            username: `${userData.first_name} ${userData.last_name}`,
+            image: userData.image_url,
+          };
+
+          console.log("Updating user:", user);
+          const updatedUser = await User.findByIdAndUpdate(userData.id, user, { new: true });
+          console.log("User updated successfully:", updatedUser);
+          
+          return res.status(200).json({ 
+            success: true, 
+            message: "User updated successfully",
+            user: updatedUser
+          });
+        } catch (err) {
+          console.error("Error updating user:", err);
+          return res.status(500).json({ 
+            error: "Failed to update user",
+            details: err.message
+          });
+        }
+        break;
+
+      case "user.deleted":
+        try {
+          console.log("Deleting user with ID:", eventId);
+          const deletedUser = await User.findByIdAndDelete(eventId);
+          console.log("User deleted successfully:", deletedUser);
+          
+          return res.status(200).json({ 
+            success: true, 
+            message: "User deleted successfully",
+            user: deletedUser
+          });
+        } catch (err) {
+          console.error("Error deleting user:", err);
+          return res.status(500).json({ 
+            error: "Failed to delete user",
+            details: err.message
+          });
+        }
+        break;
+
+      default:
+        console.log(`Unhandled event type: ${eventType}`);
+        return res.status(200).json({ 
+          success: true, 
+          message: "Webhook received but event type not handled"
+        });
+    }
 
     // Handle different event types
     switch(eventType) {

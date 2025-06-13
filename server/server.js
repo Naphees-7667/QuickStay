@@ -24,18 +24,27 @@ connectCloudinary();
 
 const app = express();
 
-// Normal middlewares
-app.use(cors({
-  origin: ["https://quick-stay-backend-rho.vercel.app","http://localhost:5173"],
-  credentials: true
-}));
-
 // ✅ Webhook route ONLY – with raw body middleware
 // It needs to be before express.json()
 app.post(
   "/api/clerk",
   express.raw({ type: "application/json" }),
-  clerkWebhooks
+  (req, res) => {
+    try {
+      console.log("Raw webhook request received");
+      console.log("Headers:", req.headers);
+      console.log("Raw body length:", req.body.length);
+      
+      // Pass through to the webhook handler
+      clerkWebhooks(req, res);
+    } catch (error) {
+      console.error("Error processing webhook:", error);
+      res.status(500).json({ 
+        error: "Internal server error",
+        details: error.message
+      });
+    }
+  }
 );
 
 // Normal middlewares
