@@ -16,7 +16,10 @@ connectCloudinary();
 const app = express();
 
 // Normal middlewares
-app.use(cors());
+app.use(cors({
+  origin: ["https://quick-stay-backend-rho.vercel.app","http://localhost:5173"],
+  credentials: true
+}));
 
 // ✅ Webhook route ONLY – with raw body middleware
 // It needs to be before express.json()
