@@ -56,7 +56,7 @@ const clerkWebhooks = async (req, res) => {
         username: `${first_name} ${last_name}`,
         image: image_url,
       };
-
+      console.log(user);
       await User.create(user);
     }
 
