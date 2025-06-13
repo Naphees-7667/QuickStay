@@ -17,7 +17,7 @@ const HotelReg = () => {
       const token = await getToken();
       const { data } = await axios.post(
         `/api/hotels/`,
-        { name, contact, city, address },
+        { name, contact, address, city },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -69,7 +69,7 @@ const HotelReg = () => {
               placeholder="Type here"
               className="border border-gray-200 rounded w-full px-3 py-2.5 mt-1 outline-indigo-500 font-light"
               required
-              
+
             />
           </div>
           {/* Phone */}
