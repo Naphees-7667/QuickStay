@@ -10,6 +10,15 @@ import roomRouter from "./routes/room.routes.js";
 import bookingRouter from "./routes/booking.routes.js";
 import { clerkMiddleware } from "@clerk/express";
 
+// Load environment variables
+const isProduction = process.env.NODE_ENV === 'production';
+const webhookURL = isProduction 
+  ? 'https://quick-stay-backend-rho.vercel.app/api/clerk'
+  : 'http://localhost:4000/api/clerk';
+
+console.log(`Running in ${isProduction ? 'production' : 'development'} mode`);
+console.log('Webhook URL:', webhookURL);
+
 connectDB();
 connectCloudinary();
 
