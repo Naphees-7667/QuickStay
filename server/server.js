@@ -17,15 +17,18 @@ const app = express();
 
 // Normal middlewares
 app.use(cors());
-app.use(express.json());
-app.use(clerkMiddleware());
 
 // ✅ Webhook route ONLY – with raw body middleware
+// It needs to be before express.json()
 app.post(
   "/api/clerk",
   express.raw({ type: "application/json" }),
   clerkWebhooks
 );
+
+// Normal middlewares
+app.use(express.json());
+app.use(clerkMiddleware());
 
 // Test route
 app.get("/", (req, res) => {
