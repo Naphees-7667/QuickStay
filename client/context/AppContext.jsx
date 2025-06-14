@@ -1,7 +1,6 @@
 import axios from "axios";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useUser, useAuth } from "@clerk/clerk-react";
 import { toast } from "react-hot-toast";
 
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
@@ -12,60 +11,55 @@ export const AppProvider = ({ children }) => {
   const currency = import.meta.env.VITE_CURRENCY || "$";
   const navigate = useNavigate();
 
-  const { user } = useUser();
-
-  const { userId, getToken } = useAuth();
-
+  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [user, setUser] = useState(null);
 
   const [isOwner, setIsOwner] = useState(false);
   const [showHotelReg, setShowHotelReg] = useState(false);
   const [searchedCities, setSearchedCities] = useState([]);
 
-  const fetchUser = async (attempt = 1, maxAttempts = 3) => {
-    try {
-      const { data } = await axios.get("/api/user", {
-        headers: { Authorization: `Bearer ${await getToken()}` },
-      });
+  const fetchUser = async () => {
+    if (!token) {
+      setUser(null);
+      setIsOwner(false);
+      setSearchedCities([]);
+      return;
+    }
 
-      if (data.success) {
-        setIsOwner(data.role === "hotelOwner");
-        setSearchedCities(data.recentSearchedCities);
-      } else if (attempt < maxAttempts) {
-        // Retry after delay
-        setTimeout(() => {
-          fetchUser(attempt + 1, maxAttempts);
-        }, 3000); // 3 sec delay
-      } else {
-        toast.error("Failed to fetch user data after multiple attempts.");
-      }
+    try {
+      const response = await axios.get('/api/auth/profile', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setUser(response.data);
+      setIsOwner(response.data.role === "hotelOwner");
+      setSearchedCities(response.data.recentSearchedCities);
     } catch (error) {
-      if (attempt < maxAttempts) {
-        setTimeout(() => {
-          fetchUser(attempt + 1, maxAttempts);
-        }, 3000);
-      } else {
-        toast.error("Error fetching user: " + error.message);
-      }
+      localStorage.removeItem('token');
+      setToken(null);
+      setUser(null);
+      setIsOwner(false);
+      setSearchedCities([]);
+      toast.error("Error fetching user: " + error.message);
     }
   };
 
   useEffect(() => {
-    if (user) {
-      fetchUser();
-    }
-  }, [user]);
-
+    fetchUser();
+  }, [token]);
+  
   const value = {
     currency,
     navigate,
-    user,
-    getToken,
     isOwner,
     setIsOwner,
     showHotelReg,
     setShowHotelReg,
     searchedCities,
     setSearchedCities,
+    token,
+    setToken,
+    user,
+    setUser,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
