@@ -6,6 +6,7 @@ import userRouter from "./routes/user.routes.js";
 import hotelRouter from "./routes/hotel.routes.js";
 import connectCloudinary from "./configs/cloudinary.configs.js";
 import roomRouter from "./routes/room.routes.js";
+import authRouter from "./routes/auth.routes.js";
 import bookingRouter from "./routes/booking.routes.js";
 import { protect } from "./middleware/authMiddleware.js";
 
