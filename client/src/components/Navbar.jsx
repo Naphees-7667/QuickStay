@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { assets } from "../assets/assets.js";
-import { useClerk, useUser, UserButton } from "@clerk/clerk-react";
+// import { useClerk, useUser, UserButton } from "@clerk/clerk-react";
 import { useAppContext } from "../../context/AppContext.jsx";
 
 const BookIcon = () => (
@@ -35,7 +35,7 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const { openSignIn } = useClerk();
+  // const { openSignIn } = useClerk();
   // const { user } = useUser();      // now we take it from contextApi
   // const navigate = useNavigate();
   const location = useLocation();
@@ -130,7 +130,7 @@ const Navbar = () => {
           </UserButton>
         ) : (
           <button
-            onClick={openSignIn}
+            onClick={() => navigate("/login")}
             className="bg-black text-white px-8 py-2.5 rounded-full ml-4 transition-all duration-500"
           >
             Login
@@ -193,7 +193,7 @@ const Navbar = () => {
 
         {!user && (
           <button
-            onClick={openSignIn}
+            onClick={() => navigate("/login")}
             className="bg-black text-white px-8 py-2.5 rounded-full transition-all duration-500"
           >
             Login
